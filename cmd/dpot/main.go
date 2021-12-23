@@ -3,7 +3,9 @@ package main
 import (
 	"bytes"
 	_ "embed"
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -36,7 +38,7 @@ type DeskpotConfig struct {
 	PackageIdentifier string        `json:"identifier,omitempty"`
 	AppName           string        `json:"name,omitempty"`
 	AppDescription    string        `json:"description,omitempty"`
-	RunID             int64         `json:"run_id,omitempty"`
+	RunID             string        `json:"run_id,omitempty"`
 	AppVersion        string        `json:"version,omitempty"`
 	OSXCategory       string        `json:"osx_category,omitempty"`
 	Publish           PublishConfig `json:"publish,omitempty"`
@@ -232,6 +234,66 @@ func main() {
 				return
 			}
 
+			if f, _ := os.Stat("./deskpot.json"); f == nil {
+				fmt.Println("This is not a deskpot project. Visit github.com/codekidx/deskpot for more info")
+				return
+			}
+
+			b, err := ioutil.ReadFile("./deskpot.json")
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			var config DeskpotConfig
+			if err := json.Unmarshal(b, &config); err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			targetFolder := path.Join(".", "out", config.AppVersion)
+			if f, _ := os.Stat(targetFolder); f != nil {
+				os.RemoveAll(targetFolder)
+				os.MkdirAll(targetFolder, 0755)
+			}
+
+			appFolder := path.Join(targetFolder, fmt.Sprintf("%s.app", config.AppName))
+			contentsFolder := path.Join(appFolder, "Contents")
+			execFolder := path.Join(contentsFolder, "MacOS")
+			resFolder := path.Join(contentsFolder, "Resources")
+			os.MkdirAll(appFolder, 0755)
+			os.MkdirAll(execFolder, 0755)
+			os.MkdirAll(resFolder, 0755)
+
+			// compile Info.plist template
+			var buf bytes.Buffer
+			t, _ := template.New("infoplist").Parse(infoPlist)
+
+			if err := t.Execute(&buf, config); err != nil {
+				panic(err)
+			}
+			// write the Info.plist into the appFolder
+			if err := ioutil.WriteFile(path.Join(contentsFolder, "Info.plist"), buf.Bytes(), 0755); err != nil {
+				panic(err)
+			}
+			buf.Reset()
+
+			// if developer has mentioned a custom icon path in config
+			if config.Publish.Icon != "DEFAULT" {
+				// check if icon is present at source
+				if f, _ := os.Stat(config.Publish.Icon); f == nil {
+					fmt.Printf("Icon not present at: %s\n", config.Publish.Icon)
+					return
+				}
+
+				if err := copy(config.Publish.Icon, path.Join(resFolder, "AppIcon.icns")); err != nil {
+					panic(err)
+				}
+			} else {
+				ioutil.WriteFile(path.Join(resFolder, "AppIcon.icns"), appIcon, 0755)
+			}
+
+			run(fmt.Sprintf("go build -o %s main.go", path.Join(execFolder, config.AppName)))
 		},
 	}
 
@@ -270,4 +332,26 @@ func killWebpackServe() {
 		fmt.Println("Cannot kill process", err.Error())
 	}
 	syscall.Kill(-pgid, syscall.SIGINT)
+}
+
+// copy the src file to dst. Any existing file will be overwritten and will not
+// copy file attributes.
+func copy(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	return out.Close()
 }

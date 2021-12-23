@@ -33,18 +33,16 @@
 	<key>CFBundleVersion</key>
 	<string>{{ .AppVersion }}</string>
 	<key>LSApplicationCategoryType</key>
-	<string>{{ .AppCategory }}</string>
+	<string>{{ .OSXCategory }}</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.9</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © {{ .Copyright.Year }} {{ .Copyright.Name }}. All rights reserved.</string>
-	<!-- <key>NSMainNibFile</key>
-	<string>MainMenu</string>
+	<string>Copyright © {{ .Publish.Copyright.Year }} {{ .Publish.Copyright.Name }}. All rights reserved.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSUserNotificationAlertStyle</key>
-	<string>alert</string> -->
+	<string>alert</string>
 </dict>
 </plist>
