@@ -1,13 +1,21 @@
-Deskpot - React + Go
---------------------
+Deskpot
+-------
 
 Create desktop application UI using React and native webview binding for Go. 
-This is a tool to help you develop desktop apps faster by scaffolding
-and providing commands that can run, package your application.
+This is jusr a tool to help you develop desktop apps faster by scaffolding
+and providing commands that can run and package your application for different
+platforms.
+
+Although the deskpot tool creates a pretty basic React boilerplate for you,
+you can use **any UI framework of your choice**. The tool only expects you to
+have a main.go file as your entry point to the application and embed required
+html with the binary.
 
 > See also
 
 [Native Webview Wrapper](https://github.com/webview/webview)
+[xgo compiler](https://github.com/karalabe/xgo) for cross compiling your
+webview application.
 
 ### Development Status
 
@@ -20,7 +28,7 @@ and providing commands that can run, package your application.
 | Notifications | ❌ | ❌ | ❌ |
 | Tray support | ❌ | ❌ | ❌ |
 | Key bindings | ❌ | ❌ | ❌ |
-
+| Installer | dmg ❌ | exe ❌ | deb/rpm ❌ |
 
 ## Installing
 
