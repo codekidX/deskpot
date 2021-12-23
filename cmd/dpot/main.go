@@ -21,6 +21,8 @@ type NewDeskpotProject struct {
 	RunID int64
 }
 
+// ----------- SCAFFOLD ----------------
+
 //go:embed templates/scaffold/mainGo.plate
 var mainGoFile string
 
@@ -43,6 +45,14 @@ var indexHtml []byte
 var babelRc []byte
 
 var webpackServeProc *exec.Cmd
+
+// ----------- PACKAGING ----------------
+
+//go:embed templates/package/infoPlist.plate
+var infoPlist string
+
+//go:embed templates/package/icon.icns
+var appIcon []byte
 
 func main() {
 	var root = &cobra.Command{
@@ -178,17 +188,21 @@ func main() {
 		},
 	}
 
-	var publishCmd = &cobra.Command{
-		Use:   "publish",
-		Short: "Publish to the platforms that is supplied in the arguments",
+	var packageCmd = &cobra.Command{
+		Use:   "pack",
+		Short: "Package your Deskpot application",
 		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 0 {
+				fmt.Println("Supported platforms: mac")
+				return
+			}
 
 		},
 	}
 
 	root.AddCommand(newCmd)
 	root.AddCommand(runCmd)
-	root.AddCommand(publishCmd)
+	root.AddCommand(packageCmd)
 
 	if err := root.Execute(); err != nil {
 		panic(err)

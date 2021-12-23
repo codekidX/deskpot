@@ -1,0 +1,15 @@
+{
+    "identifier": "com.deskpot.{{ .NameLower }}",
+    "name": "{{ .Name }}",
+    "description": "This application is created with Deskpot",
+    "version": 1.0,
+    "run_id": "{{ .RunID }}",
+    "osx_category": "public.app-category.developer-tools",
+    "publish": {
+        "icon": "DEFAULT",
+        "copyright": {
+            "year": "2021",
+            "name": "Deskpot Owner"
+        }
+    }
+}
