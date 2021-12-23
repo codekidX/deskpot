@@ -17,14 +17,38 @@ import (
 )
 
 type NewDeskpotProject struct {
-	Name  string
-	RunID int64
+	Name      string
+	NameLower string
+	RunID     int64
+}
+
+type CopyrightConfig struct {
+	Year string `json:"year,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type PublishConfig struct {
+	Icon      string          `json:"icon,omitempty"`
+	Copyright CopyrightConfig `json:"copyright,omitempty"`
+}
+
+type DeskpotConfig struct {
+	PackageIdentifier string        `json:"identifier,omitempty"`
+	AppName           string        `json:"name,omitempty"`
+	AppDescription    string        `json:"description,omitempty"`
+	RunID             int64         `json:"run_id,omitempty"`
+	AppVersion        string        `json:"version,omitempty"`
+	OSXCategory       string        `json:"osx_category,omitempty"`
+	Publish           PublishConfig `json:"publish,omitempty"`
 }
 
 // ----------- SCAFFOLD ----------------
 
 //go:embed templates/scaffold/mainGo.plate
 var mainGoFile string
+
+//go:embed templates/scaffold/deskpotJson.plate
+var deskpotJson string
 
 //go:embed templates/scaffold/indexJsx.plate
 var indexJsx []byte
@@ -86,25 +110,36 @@ func main() {
 				panic(err)
 			}
 
-			// compile template
 			var buf bytes.Buffer
-			{
-				defer buf.Reset()
-				t, _ := template.New("main.go").Parse(mainGoFile)
-				config := NewDeskpotProject{
-					Name:  strings.Title((name)),
-					RunID: time.Now().UnixMilli(),
-				}
-				if err := t.Execute(&buf, config); err != nil {
-					panic(err)
-				}
-				// write the main.go file from the template
-				if err := ioutil.WriteFile(path.Join(projectFolder, "main.go"), buf.Bytes(), 0755); err != nil {
-					panic(err)
-				}
+			config := NewDeskpotProject{
+				Name:      strings.Title((name)),
+				NameLower: strings.ToLower(name),
+				RunID:     time.Now().UnixMilli(),
 			}
 
-			// TODO: compile the main.prod template here
+			// compile main.go template
+			t, _ := template.New("main.go").Parse(mainGoFile)
+
+			if err := t.Execute(&buf, config); err != nil {
+				panic(err)
+			}
+			// write the main.go file from the template
+			if err := ioutil.WriteFile(path.Join(projectFolder, "main.go"), buf.Bytes(), 0755); err != nil {
+				panic(err)
+			}
+			buf.Reset()
+
+			// compile deskpot.json template
+			t, _ = template.New("deskpot.json").Parse(deskpotJson)
+
+			if err := t.Execute(&buf, config); err != nil {
+				panic(err)
+			}
+			// write the main.go file from the template
+			if err := ioutil.WriteFile(path.Join(projectFolder, "deskpot.json"), buf.Bytes(), 0755); err != nil {
+				panic(err)
+			}
+			buf.Reset()
 
 			// check if npm exists
 			if _, err := exec.LookPath("npm"); err != nil {
