@@ -1,0 +1,46 @@
+const path = require('path');
+
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
+	template: __dirname + '/public/index.html',
+	publicPath: './',
+	filename: 'index.html',
+	inject: 'body'
+});
+
+module.exports = {
+	mode: 'development',
+	entry: './ui/index.jsx',
+	devServer: {
+		port: 9444,
+	},
+	module: {
+		rules: [
+			{
+				test: /\.css$/,
+				use: [
+					{ loader: "style-loader" },
+					{ loader: "css-loader" }
+				]
+			},
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				use: "babel-loader"
+			}, {
+				test: /\.jsx?$/,
+				exclude: /node_modules/,
+				use: {
+					loader: "babel-loader",
+					options: {
+						presets: [
+							"@babel/preset-env",
+							"@babel/preset-react"
+						]
+					}
+				}
+			}
+		]
+	},
+	plugins: [HTMLWebpackPluginConfig]
+}

@@ -1,0 +1,69 @@
+const path = require('path');
+
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
+	inlineSource: 'main.js$',
+	template: __dirname + '/public/index.html',
+	publicPath: './',
+	filename: 'index.html',
+	inject: 'body',
+	minify: {
+		collapseWhitespace: true,
+		minifyCSS: true,
+		minifyJS: true,
+		minifyURLs: false,
+		removeAttributeQuotes: true,
+		removeComments: true, // false for Vue SSR to find app placeholder
+		removeEmptyAttributes: true,
+		removeOptionalTags: true,
+		removeRedundantAttributes: true,
+		removeScriptTypeAttributes: true,
+		removeStyleLinkTypeAttributese: true,
+		useShortDoctype: true
+	}
+});
+
+const InlineSourceWebpackPlugin = require('inline-source-webpack-plugin');
+
+module.exports = {
+	mode: 'development',
+	entry: './ui/index.jsx',
+	output: {
+		clean: true,
+		path: path.join(__dirname, 'out/prod'),
+		filename: 'main.js'
+	},
+	module: {
+		rules: [
+			{
+				test: /\.css$/,
+				use: [
+					{ loader: "style-loader" },
+					{ loader: "css-loader" }
+				]
+			},
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				use: "babel-loader"
+			}, {
+				test: /\.jsx?$/,
+				exclude: /node_modules/,
+				use: {
+					loader: "babel-loader",
+					options: {
+						presets: [
+							"@babel/preset-env",
+							"@babel/preset-react"
+						]
+					}
+				}
+			}
+		]
+	},
+	plugins: [HTMLWebpackPluginConfig, new InlineSourceWebpackPlugin({
+		compress: true,
+		rootPath: './out/prod',
+		noAssetMatch: 'warn'
+	})]
+}

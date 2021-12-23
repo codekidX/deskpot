@@ -1,0 +1,37 @@
+package main
+
+import (
+	_ "embed"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+
+	"github.com/webview/webview"
+)
+
+//go:embed out/prod/index.html
+var finalHTML []byte
+
+func main() {
+	app := "Brackets"
+	runid := "1640187564913"
+	w := webview.New(true)
+	defer w.Destroy()
+
+	w.SetTitle(app)
+	// for non-resizable window you can use: HintFixed
+	// see here for more information -
+	w.SetSize(800, 600, webview.HintNone)
+	html := path.Join(os.TempDir(), fmt.Sprintf("%s-%s.html", app, runid))
+	if err := ioutil.WriteFile(html, finalHTML, 0755); err != nil {
+		panic(err)
+	}
+
+	if os.Getenv("DPOT_DEV") != "" {
+		w.Navigate("http://localhost:9444")
+	} else {
+		w.Navigate("file:///" + html)
+	}
+	w.Run()
+}
