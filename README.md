@@ -19,6 +19,7 @@ and providing commands that can run, package your application.
 | Menu binding | ❌ | ❌ | ❌ |
 | Notifications | ❌ | ❌ | ❌ |
 | Tray support | ❌ | ❌ | ❌ |
+| Key bindings | ❌ | ❌ | ❌ |
 
 
 ## Installing
@@ -76,7 +77,7 @@ path.
     "identifier": "com.deskpot.myapp",
     "name": "Myapp",
     "description": "This application is created with Deskpot",
-    "version": 1.0,
+    "version": "1.0",
     "run_id": "123781212",
     "osx_category": "public.app-category.developer-tools",
     "publish": {
