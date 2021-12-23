@@ -21,25 +21,25 @@ type NewDeskpotProject struct {
 	RunID int64
 }
 
-//go:embed templates/mainGo.plate
+//go:embed templates/scaffold/mainGo.plate
 var mainGoFile string
 
-//go:embed templates/indexJsx.plate
+//go:embed templates/scaffold/indexJsx.plate
 var indexJsx []byte
 
-//go:embed templates/appJsx.plate
+//go:embed templates/scaffold/appJsx.plate
 var appJsx []byte
 
-//go:embed templates/webpackDevConfigJs.plate
+//go:embed templates/scaffold/webpackDevConfigJs.plate
 var webpackDevConfigJs []byte
 
-//go:embed templates/webpackProdConfigJs.plate
+//go:embed templates/scaffold/webpackProdConfigJs.plate
 var webpackProdConfigJs []byte
 
-//go:embed templates/indexHtml.plate
+//go:embed templates/scaffold/indexHtml.plate
 var indexHtml []byte
 
-//go:embed templates/babelrc.plate
+//go:embed templates/scaffold/babelrc.plate
 var babelRc []byte
 
 var webpackServeProc *exec.Cmd
