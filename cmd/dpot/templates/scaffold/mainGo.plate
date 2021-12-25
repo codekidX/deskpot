@@ -20,9 +20,9 @@ func main() {
 	defer w.Destroy()
 
 	w.SetTitle(app)
-	// for non-resizable window you can use: HintFixed
+	// for resizable window you can use: HintNone
 	// see here for more information -
-	w.SetSize(800, 600, webview.HintNone)
+	w.SetSize(800, 600, webview.HintFixed)
 	html := path.Join(os.TempDir(), fmt.Sprintf("%s-%s.html", app, runid))
 	if err := ioutil.WriteFile(html, finalHTML, 0755); err != nil {
 		panic(err)
@@ -31,6 +31,10 @@ func main() {
 	if os.Getenv("DPOT_DEV") != "" {
 		w.Navigate("http://localhost:9444")
 	} else {
+		// this line prevents the user from right clicking and opening the context
+		// menu accross your app frame. You can remove this if it is okay to
+		// inspect your app in production.
+		w.Init("document.addEventListener('contextmenu', event => event.preventDefault());")
 		w.Navigate("file:///" + html)
 	}
 	w.Run()
