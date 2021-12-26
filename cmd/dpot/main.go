@@ -34,14 +34,19 @@ type PublishConfig struct {
 	Copyright CopyrightConfig `json:"copyright,omitempty"`
 }
 
+type DeveloperConfig struct {
+	Timeout int `json:"timeout,omitempty"`
+}
+
 type DeskpotConfig struct {
-	PackageIdentifier string        `json:"identifier,omitempty"`
-	AppName           string        `json:"name,omitempty"`
-	AppDescription    string        `json:"description,omitempty"`
-	RunID             string        `json:"run_id,omitempty"`
-	AppVersion        string        `json:"version,omitempty"`
-	OSXCategory       string        `json:"osx_category,omitempty"`
-	Publish           PublishConfig `json:"publish,omitempty"`
+	PackageIdentifier string          `json:"identifier,omitempty"`
+	AppName           string          `json:"name,omitempty"`
+	AppDescription    string          `json:"description,omitempty"`
+	RunID             string          `json:"run_id,omitempty"`
+	AppVersion        string          `json:"version,omitempty"`
+	OSXCategory       string          `json:"osx_category,omitempty"`
+	Publish           PublishConfig   `json:"publish,omitempty"`
+	Dev               DeveloperConfig `json:"dev,omitempty"`
 }
 
 // ----------- SCAFFOLD ----------------
@@ -216,9 +221,33 @@ func main() {
 		Use:   "run",
 		Short: "Runs your react app in webpack-dev-server",
 		Run: func(cmd *cobra.Command, args []string) {
+			// TODO: we can refactor unmarshalling of the config into
+			// a function as it is also used inside the publish function
+			if f, _ := os.Stat("./deskpot.json"); f == nil {
+				fmt.Println("This is not a deskpot project. Visit github.com/codekidx/deskpot for more info")
+				return
+			}
+
+			b, err := ioutil.ReadFile("./deskpot.json")
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			var config DeskpotConfig
+			if err := json.Unmarshal(b, &config); err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			if config.Dev.Timeout != 0 {
+				config.Dev.Timeout = 5
+			}
+			timeout := time.Duration(config.Dev.Timeout)
+
 			go runWebpackServe()
 			os.Setenv("DPOT_DEV", "deskpot")
-			time.Sleep(5 * time.Second)
+			time.Sleep(timeout * time.Second)
 			run("go run main.go")
 			os.Unsetenv("DPOT_DEV")
 			killWebpackServe()
@@ -334,8 +363,7 @@ func killWebpackServe() {
 	syscall.Kill(-pgid, syscall.SIGINT)
 }
 
-// copy the src file to dst. Any existing file will be overwritten and will not
-// copy file attributes.
+// copy file from `src` path to the `dst` path
 func copy(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {

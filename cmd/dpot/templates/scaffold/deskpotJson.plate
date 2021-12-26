@@ -11,5 +11,8 @@
             "year": "2021",
             "name": "Deskpot Owner"
         }
+    },
+    "dev": {
+        "timeout": 5
     }
 }
