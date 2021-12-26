@@ -156,7 +156,7 @@ func main() {
 			run("npm init -y")
 			run("npm install react react-dom")
 			run("npm install webpack webpack-cli webpack-dev-server html-webpack-plugin" +
-				" inline-source-webpack-plugin --save-dev")
+				" inline-source-webpack-plugin css-loader style-loader --save-dev")
 			run("npm i --save-dev babel-loader @babel/preset-env @babel/core @babel/plugin-syntax-dynamic-import" +
 				" @babel/plugin-transform-runtime @babel/preset-react babel-eslint @babel/runtime")
 
